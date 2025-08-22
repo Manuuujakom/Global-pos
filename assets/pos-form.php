@@ -132,16 +132,18 @@
             </div>
         </div>
 
-        <div class="flex flex-wrap gap-2 justify-end">
-            <button type="button" class="pos-button px-3 py-1 text-xs rounded-md">Complete</button>
-            <button type="button" class="pos-button px-3 py-1 text-xs rounded-md">Print</button>
-            <button type="button" class="pos-button px-3 py-1 text-xs rounded-md">New</button>
-            <button type="button" class="pos-button px-3 py-1 text-xs rounded-md">Modify</button>
-            <button type="button" class="pos-button px-3 py-1 text-xs rounded-md">Void</button>
-            <button type="submit" class="pos-button pos-button-save px-3 py-1 text-xs rounded-md">Save</button>
-            <button type="button" class="pos-button px-3 py-1 text-xs rounded-md" onclick="document.getElementById('pos-popup').remove();">Cancel</button>
-            <button type="button" class="pos-button px-3 py-1 text-xs rounded-md">Copy</button>
-        </div>
+       <div class="flex flex-wrap gap-2 ">
+    <button type="button" class="px-3 py-1 text-xs rounded-md text-white bg-blue-600 hover:bg-blue-700">Complete</button>
+    <button type="button" class="px-3 py-1 text-xs rounded-md text-white bg-blue-500 hover:bg-blue-600">Print</button>
+    <button type="button" class="px-3 py-1 text-xs rounded-md text-white bg-blue-500 hover:bg-blue-600">New</button>
+    <button type="submit" class="px-3 py-1 text-xs rounded-md text-white bg-blue-600 hover:bg-blue-700">Save</button>
+    
+    <button type="button" class="px-3 py-1 text-xs rounded-md text-white bg-blue-500 hover:bg-blue-600">Modify</button>
+    <button type="button" class="px-3 py-1 text-xs rounded-md text-white bg-red-500 hover:bg-red-600">Void</button>
+    
+    <button type="button" class="px-3 py-1 text-xs rounded-md text-gray-800 bg-red-300 hover:bg-red-400">Cancel</button>
+    <button type="button" class="px-3 py-1 text-xs rounded-md text-gray-800 bg-blue-300 hover:bg-blue-400">Copy</button>
+</div>
     </div>
     <script>
         function togglePopup() {

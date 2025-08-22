@@ -142,7 +142,7 @@ $department = $_SESSION['department'] ?? 'Department';
     'p-6',
     'rounded-xl',
     'shadow-2xl',
-    'w-[90vw]', // Maintains 90% viewport width
+    'w-[70vw]', // Maintains 90% viewport width
     'max-w-none',
     'h-[50vh]', // Sets initial height to 80% of the viewport height
     'min-h-[500px]', // Prevents it from becoming too small
