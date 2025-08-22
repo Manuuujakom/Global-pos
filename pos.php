@@ -83,10 +83,7 @@ $department = $_SESSION['department'] ?? 'Department';
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="flex flex-col min-h-screen">
-        <div class="w-full bg-white text-right p-2 shadow-md">
-            <a href="welcome.php" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white bg-red-500 border-transparent hover:bg-red-600 transition-colors duration-200">Back</a>
-            <a href="logout.php" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white bg-red-500 border-transparent hover:bg-red-600 transition-colors duration-200">Logout</a>
-        </div>
+     
 
         <header class="bg-blue-600 shadow-md">
             <nav class="flex items-center justify-between p-4 flex-wrap">
@@ -113,6 +110,10 @@ $department = $_SESSION['department'] ?? 'Department';
                     <a href="#" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-blue-500 hover:bg-white transition-colors duration-200">Find Record</a>
                 </div>
             </nav>
+            <div class="flex justify-end w-full">
+    <!--<a href="welcome.php" class="inline-block text-sm px-4 py-2 leading-none border rounded text-white bg-red-500 border-transparent hover:bg-red-600 transition-colors duration-200">Back</a>-->
+    <a href="logout.php" class="ml-2 inline-block text-sm px-4 py-2 leading-none border rounded text-white bg-red-500 border-transparent hover:bg-red-600 transition-colors duration-200">Logout</a>
+</div>
         </header>
 
         <main class="flex-grow p-6">
@@ -135,25 +136,27 @@ $department = $_SESSION['department'] ?? 'Department';
             const popupId = `pos-popup-${Date.now()}`;
             const popup = document.createElement('div');
             popup.id = popupId;
-            popup.classList.add(
-                'draggable-popup',
-                'bg-white',
-                'p-6',
-                'rounded-xl',
-                'shadow-2xl',
-                'w-full',
-                'max-w-xl',
-                'border-4',
-                'border-blue-500',
-                'flex',
-                'flex-col'
-            );
+       popup.classList.add(
+    'draggable-popup',
+    'bg-white',
+    'p-6',
+    'rounded-xl',
+    'shadow-2xl',
+    'w-[90vw]', // Maintains 90% viewport width
+    'max-w-none',
+    'h-[50vh]', // Sets initial height to 80% of the viewport height
+    'min-h-[500px]', // Prevents it from becoming too small
+    'border-4',
+    'border-blue-500',
+    'flex',
+    'flex-col'
+);
 
             // Create a handle for dragging and a close button
             const header = document.createElement('div');
-            header.classList.add('flex', 'justify-between', 'items-center', 'mb-4', 'p-2', 'bg-blue-600', 'text-white', 'rounded-lg', 'shadow-md');
+            header.classList.add('flex', 'justify-between', 'items-center', 'mb-4', 'p-2', 'bg-blue-600', 'text-white', 'rounded-sm', 'shadow-md');
             header.innerHTML = `
-                <h3 class="text-lg font-bold">POS Form</h3>
+                <h3 class="text-sm font-bold">Cash Sale</h3>
                 <button class="close-button text-white font-bold p-1 rounded-full hover:bg-blue-700 transition-colors duration-200 no-drag" onclick="document.getElementById('${popupId}').remove();">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -172,7 +175,7 @@ $department = $_SESSION['department'] ?? 'Department';
             document.body.appendChild(popup);
 
             // Fetch the content of the form and inject it into the popup
-            fetch('/workspaces/GlobalMakers/assets/pos-form.html')
+            fetch('assets/pos-form.php')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch POS form');
