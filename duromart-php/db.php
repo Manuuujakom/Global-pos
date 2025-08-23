@@ -2,42 +2,28 @@
 /**
  * db.php
  *
- * This file establishes a connection to the Supabase PostgreSQL database
- * using a single DATABASE_URL string, a common practice for
- * deployment environments.
+ * This file establishes a connection to the MySQL database.
+ * It is intended to be included at the beginning of any script
+ * that needs to interact with the database.
  */
 
-// Your Supabase database connection URL.
-$databaseUrl = "postgresql://postgres:Tx*%23ep%3Fkt89pNbu@db.sgurgsblrlridrowcypr.supabase.co:5432/postgres";
+// Define database connection constants.
+// You may need to change these values based on your local environment setup.
+define('DB_SERVER', '127.0.0.1');
+define('DB_USERNAME', 'root');   // Default username for local servers like XAMPP, WAMP, MAMP
+define('DB_PASSWORD', '');      // Default password is often empty
+define('DB_NAME', 'duromart_database');    // The database name you specified
 
-// Parse the DATABASE_URL to extract its components.
-$url = parse_url($databaseUrl);
-
-// Ensure the URL was parsed successfully.
-if ($url === false) {
-    die("ERROR: Could not parse the DATABASE_URL.");
-}
-
-// Build the connection string for pg_connect.
-$conn_string = sprintf(
-    "host=%s port=%s dbname=%s user=%s password=%s",
-    $url['host'],
-    $url['port'],
-    ltrim($url['path'], '/'), // Remove the leading slash from the path.
-    $url['user'],
-    // pg_connect expects a decoded password.
-    rawurldecode($url['pass']) 
-);
-
-// Attempt to establish a connection to the PostgreSQL database.
-$conn = pg_connect($conn_string);
+// Attempt to connect to the database.
+$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
 
 // Check the connection.
-if (!$conn) {
-    die("ERROR: Could not connect to the database.");
+// If the connection fails, terminate the script and display an error message.
+if ($conn->connect_error) {
+    die("ERROR: Could not connect. " . $conn->connect_error);
 }
 
-// Set character set to UTF-8.
-pg_set_client_encoding($conn, "UTF-8");
+// Set character set to UTF-8. This is good practice.
+$conn->set_charset("utf8mb4");
 
 ?>
