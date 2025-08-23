@@ -2,28 +2,31 @@
 /**
  * db.php
  *
- * This file establishes a connection to the MySQL database.
+ * This file establishes a connection to the Supabase PostgreSQL database.
  * It is intended to be included at the beginning of any script
  * that needs to interact with the database.
  */
 
-// Define database connection constants.
-// You may need to change these values based on your local environment setup.
-define('DB_SERVER', '127.0.0.1');
-define('DB_USERNAME', 'root');   // Default username for local servers like XAMPP, WAMP, MAMP
-define('DB_PASSWORD', '');      // Default password is often empty
-define('DB_NAME', 'duromart_database');    // The database name you specified
+// Define database connection constants for Supabase.
+// Replace the values with your actual Supabase credentials.
+define('DB_SERVER', 'db.sgurgsblrlridrowcypr.supabase.co');
+define('DB_PORT', 5432);
+define('DB_USERNAME', 'postgres');
+define('DB_PASSWORD', 'Tx*#ep?kt89pNbu');
+define('DB_NAME', 'postgres'); // Changed from 'postgrest' to 'postgres'
 
-// Attempt to connect to the database.
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+// Attempt to establish a connection to the PostgreSQL database.
+// The connection string is a single parameter for pg_connect.
+$conn_string = "host=" . DB_SERVER . " port=" . DB_PORT . " dbname=" . DB_NAME . " user=" . DB_USERNAME . " password=" . DB_PASSWORD;
+
+$conn = pg_connect($conn_string);
 
 // Check the connection.
-// If the connection fails, terminate the script and display an error message.
-if ($conn->connect_error) {
-    die("ERROR: Could not connect. " . $conn->connect_error);
+if (!$conn) {
+    die("ERROR: Could not connect to the database.");
 }
 
-// Set character set to UTF-8. This is good practice.
-$conn->set_charset("utf8mb4");
+// Set character set to UTF-8.
+pg_set_client_encoding($conn, "UTF-8");
 
 ?>
