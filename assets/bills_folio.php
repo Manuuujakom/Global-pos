@@ -23,12 +23,6 @@
 // $totalNetAmount = calculateTotalNetAmount($bills);
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bills Folio Register</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Define custom colors and styles to match the DuroPOS theme */
@@ -72,7 +66,7 @@
             @apply text-sm font-semibold text-gray-900;
         }
     </style>
-</head>
+
 <body class="bg-gray-100 font-sans">
     <form action="#" method="POST" class="p-6 pos-bg rounded-b-lg">
         
@@ -194,4 +188,3 @@
         </div>
     </form>
 </body>
-</html>

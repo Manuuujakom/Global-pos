@@ -121,14 +121,55 @@ $department = $_SESSION['department'] ?? 'Department';
         .dropdown-menu {
             transition: opacity 0.2s ease-in-out;
         }
+        
+        /* --- Modal Pop-up Styles --- */
+        /* The main change to the modal is removing the centering transform */
+        .modal {
+            position: absolute; /* Positioned relative to the main-content container */
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 400px;
+            max-width: 90vw;
+            max-height: 90vh;
+            resize: both; /* Allows user to resize the modal */
+        }
 
+        .modal-header {
+            padding: 10px 15px;
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: grab;
+        }
+
+        .modal-body {
+            padding: 15px;
+            overflow-y: auto; /* Allows content to scroll */
+            flex-grow: 1;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="flex flex-col min-h-screen">
         <header class="bg-blue-500 shadow-md">
             <div class="header-content">
-                <!-- First Line: DuroPOS Title -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2">
                     <div class="flex items-center mb-2 sm:mb-0">
                         <img src="https://placehold.co/40x40/5d8cfd/fff?text=Logo" alt="img" class="h-5 w-5 mr-2 rounded-full shadow-md">
@@ -140,34 +181,44 @@ $department = $_SESSION['department'] ?? 'Department';
                     </div>
                 </div>
             
-                <!-- Second Line: Navigation Links -->
                 <div class="flex-grow flex-wrap lg:flex-nowrap lg:flex lg:items-center lg:w-auto p-2 border-t border-blue-400">
                     <nav class="text-sm flex flex-wrap lg:flex-nowrap">
                         <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">View</a>
                         <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Admin</a>
                         <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Reports</a>
                         <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Masters</a>
-                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Stores</a>
-            
-                        <!-- Accounts Dropdown Menu -->
+                        <!-- FIX: Changed <a> to a <button> and wrapped it in a <div> for proper dropdown behavior. -->
+                        <div class="relative inline-block text-left" id="stores-dropdown">
+                            <button id="stores-button" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium focus:outline-none" aria-haspopup="true" aria-expanded="false">
+                                Stores
+                            </button>
+                            <!-- NOTE: Replaced the group-hover logic with JS-controlled classes -->
+                            <div id="stores-menu" class="dropdown-menu origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible" role="menu" aria-orientation="vertical" aria-labelledby="stores-button">
+                                <a href="#direct-purchases" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100"  data-content-id="direct-purchases" onclick="openStockForm(); closeDropdown('stores-menu', 'stores-button'); return false;">Direct Purchases - Stocking</a>
+                                <a href="#return-inwards" class="block px-4 py-2 text-gray-800 hover:bg-blue-100" data-content-id="return-inwards">Return Inwards/Outwards</a>
+                                <a href="#stock-transfers" class="block px-4 py-2 text-gray-800 hover:bg-blue-100" data-content-id="stock-transfers">Stock/Item Transfers</a>
+                                <a href="#stock-adjustments" class="block px-4 py-2 text-gray-800 hover:bg-blue-100" data-content-id="stock-adjustments">Stock Count Adjustments</a>
+                                <a href="#departmental-consumption" class="block px-4 py-2 text-gray-800 hover:bg-blue-100" data-content-id="departmental-consumption">Departmental Consumption Tallies</a>
+                                <a href="#production-stocking" class="block px-4 py-2 text-gray-800 hover:bg-blue-100" data-content-id="production-stocking">Production Stocking/Conversion</a>
+                            </div>
+                        </div>
+                        
                         <div class="relative inline-block text-left" id="accounts-dropdown">
                             <button id="accounts-button" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium focus:outline-none" aria-haspopup="true" aria-expanded="true">
                                 Accounts
                             </button>
                             <div id="accounts-menu" class="dropdown-menu origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible" role="menu" aria-orientation="vertical" aria-labelledby="accounts-button">
                                 <div class="py-1" role="none">
-                                    <!-- This link now calls the openPosForm() function and then closes the dropdown -->
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" onclick="openPosForm(); closeDropdown(); return false;">POS</a>
-                                    <!-- This link now calls the new openBillsFolioRegisterForm() function -->
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="openBillsFolioRegisterForm(); closeDropdown(); return false;">Bills Folio Register</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Accounts Payable</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="openSalesOrderForm(); closeDropdown(); return false;">Sales Orders Processing</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Invoice Payments (Receivables)</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Debit</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Cash Register</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Payment Entries</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Banking Entries</a>
-                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Customer Accounts Deposit</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" onclick="openPosForm(); closeDropdown('accounts-menu', 'accounts-button'); return false;">POS</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="openBillsFolioRegisterForm(); closeDropdown('accounts-menu', 'accounts-button'); return false;">Bills Folio Register</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown('accounts-menu', 'accounts-button'); return false;">Accounts Payable</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="openSalesOrderForm(); closeDropdown('accounts-menu', 'accounts-button'); return false;">Sales Orders Processing</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown('accounts-menu', 'accounts-button'); return false;">Invoice Payments (Receivables)</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown('accounts-menu', 'accounts-button'); return false;">Debit</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown('accounts-menu', 'accounts-button'); return false;">Cash Register</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown('accounts-menu', 'accounts-button'); return false;">Payment Entries</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown('accounts-menu', 'accounts-button'); return false;">Banking Entries</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown('accounts-menu', 'accounts-button'); return false;">Customer Accounts Deposit</a>
                                 </div>
                             </div>
                         </div>
@@ -180,48 +231,40 @@ $department = $_SESSION['department'] ?? 'Department';
                     </nav>
                 </div>
             
-                <!-- Third Line: Action Buttons -->
                 <div class="flex flex-wrap items-center justify-between p-2 border-t border-blue-400">
                     <div class="flex flex-wrap items-center space-x-2">
-                        <!-- Save Button -->
                         <button class="icon-button">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                             </svg>
                             <span class="text-xs">Save</span>
                         </button>
-                        <!-- Copy Button -->
                         <button class="icon-button">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 4v6m-4-3h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2m-6-6h12a2 2 0 002-2v-4a2 2 0 00-2-2H8a2 2 0 00-2 2v4a2 2 0 002 2z" />
                             </svg>
                             <span class="text-xs">Copy</span>
                         </button>
-                        <!-- Print Button -->
                         <button class="icon-button">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2v-4m-2 4h2m0 0v1a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1M17 17h-4m-4-4h4m0 0v-4a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2z" />
                             </svg>
                             <span class="text-xs">Print</span>
                         </button>
-                        <!-- Find (Binoculars) Button -->
                         <button class="icon-button">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 12a2 2 0 100-4 2 2 0 000 4z" />
                             </svg>
                             <span class="text-xs">Find Record</span>
                         </button>
-                        <!-- Drawer Reconciliation Button - Now consistent with other icons -->
                         <a href="#" class="icon-button">
                             <span class="text-xs">Drawer Reconciliation</span>
                         </a>
-                        <!-- Admin Collection Button - Now consistent with other icons -->
                         <a href="#" class="icon-button">
                             <span class="text-xs">Admin Collection</span>
                         </a>
                         <a href="#" id="pos-button" class="icon-button" onclick="openPosForm(); return false;">POS</a>
                     </div>
-                    <!-- This div is pushed to the far right -->
                     <div class="flex items-center space-x-2 mt-2 sm:mt-0">
                         <a href="logout.php" class="icon-button">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -234,28 +277,24 @@ $department = $_SESSION['department'] ?? 'Department';
             </div>
         </header>
 
-        <!-- Main content area for general dashboard messages -->
         <main class="flex-grow p-6 relative" id="main-content">
-            <div class="container mx-auto">
-                <div class="text-center text-gray-500" id="initial-message">
-                    <h2 class="text-2xl font-semibold mb-4">Welcome to DuroPOS</h2>
-                    <p>Select an option from the navigation bar above to get started.</p>
-                </div>
-                <!-- The POS form will be injected here -->
-                <div id="form-container" class="mt-8 p-6 bg-white rounded-lg shadow-md hidden overflow-y-auto max-h-screen">
-                    <!-- Content will be loaded here by JavaScript -->
-                </div>
+            <!-- This is the container for the cascading modals -->
+            <div id="modal-container" class="absolute inset-0 z-10"></div>
+            
+            <div class="text-center text-gray-500" id="initial-message">
+                <h2 class="text-2xl font-semibold mb-4">Welcome to DuroPOS</h2>
+                <p>Select an option from the navigation bar above to get started.</p>
             </div>
         </main>
         
-        <!-- Updated Footer -->
         <footer class="bg-gray-800 text-white p-4 text-sm">
             <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between">
-                <!-- Copyright in the center -->
+                <span id="open-windows-count" class="text-xs opacity-75 order-3 sm:order-2 mt-2 sm:mt-0">
+                    Open Windows: 0
+                </span>
                 <span class="text-center text-xs order-2 sm:order-1 mt-2 sm:mt-0">
                     &copy; <span id="current-year"></span> Global Make Traders LTD. All rights reserved.
                 </span>
-                <!-- User/Department on the right -->
                 <span class="text-xs opacity-75 order-1 sm:order-2">User : <?php echo htmlspecialchars($username); ?></span>
             </div>
         </footer>
@@ -264,40 +303,94 @@ $department = $_SESSION['department'] ?? 'Department';
     <script>
         // --- Core Application Logic ---
 
-        /**
-         * Generic function to close any form and restore the dashboard to its initial state.
-         */
-        function closeForm() {
-            const initialMessage = document.getElementById('initial-message');
-            const formContainer = document.getElementById('form-container');
-            const posButton = document.getElementById('pos-button');
+        // Tracks the number of open modals for the cascade effect
+        let openModalCount = 0;
+        let zIndexCounter = 100;
+        const cascadeOffset = 30; // pixels for each new modal
 
-            formContainer.classList.add('hidden');
-            initialMessage.style.display = 'block';
-            posButton.style.display = 'inline-block';
+        /**
+         * Updates the display of the number of open windows.
+         */
+        function updateModalCountDisplay() {
+            const countElement = document.getElementById('open-windows-count');
+            if (countElement) {
+                countElement.textContent = `Open Windows: ${openModalCount}`;
+            }
+        }
+        
+        /**
+         * Closes a specific modal by its ID.
+         * @param {string} modalId - The ID of the modal to close.
+         */
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.remove();
+                // Decrement the open modal count
+                openModalCount--;
+                if (openModalCount < 0) openModalCount = 0; // Prevent negative numbers
+                updateModalCountDisplay();
+            }
         }
 
         /**
-         * Fetches a form from a specified URL and injects it into the main content area.
+         * Fetches a form from a specified URL and creates a new modal pop-up.
+         * The new modal will be positioned in a cascading manner.
          * @param {string} formUrl - The URL of the form to fetch.
+         * @param {string} modalTitle - The title for the modal window.
          */
-        function openForm(formUrl) {
-            const initialMessage = document.getElementById('initial-message');
-            const formContainer = document.getElementById('form-container');
-            const posButton = document.getElementById('pos-button');
-
-            // Hide the main POS button and the initial message
-            posButton.style.display = 'none';
-            initialMessage.style.display = 'none';
-
-            // Show the container for the form and make it full width/height on small screens
-            formContainer.classList.remove('hidden');
-            formContainer.classList.add('w-full', 'h-auto', 'max-h-screen', 'overflow-y-auto');
+        function openForm(formUrl, modalTitle) {
+            const modalId = `modal-${Date.now()}`;
             
-            // Display a loading message inside the container
-            formContainer.innerHTML = `<div class="p-4 text-center text-gray-500 animate-pulse">Loading form...</div>`;
+            // Increment the count and z-index for the new modal
+            openModalCount++;
+            zIndexCounter++;
 
-            // Fetch the content of the form and inject it into the form container
+            // Hide the initial message if this is the first modal
+            const initialMessage = document.getElementById('initial-message');
+            if (initialMessage) {
+                initialMessage.style.display = 'none';
+            }
+
+            // Create the modal container
+            const modal = document.createElement('div');
+            modal.id = modalId;
+            modal.classList.add('modal');
+            modal.style.zIndex = zIndexCounter;
+
+            // Set the form's initial position in a cascading manner
+            const topOffset = openModalCount * cascadeOffset;
+            const leftOffset = openModalCount * cascadeOffset;
+            modal.style.top = `${topOffset}px`;
+            modal.style.left = `${leftOffset}px`;
+
+            // Add an event listener to bring the modal to the front when clicked
+            modal.addEventListener('mousedown', () => {
+                zIndexCounter++;
+                modal.style.zIndex = zIndexCounter;
+            });
+            
+            // Add a loading message
+            modal.innerHTML = `
+                <div class="modal-header">
+                    <span>${modalTitle}</span>
+                    <button class="modal-close-btn" onclick="closeModal('${modalId}')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-4 text-center text-gray-500 animate-pulse">Loading form...</div>
+                </div>
+            `;
+            
+            // Append the new modal to the modal-container
+            const modalContainer = document.getElementById('modal-container');
+            if (modalContainer) {
+                modalContainer.appendChild(modal);
+            } else {
+                console.error("Error: modal-container not found.");
+                return;
+            }
+
+            // Fetch the content of the form and inject it into the modal body
             fetch(formUrl)
                 .then(response => {
                     if (!response.ok) {
@@ -306,98 +399,158 @@ $department = $_SESSION['department'] ?? 'Department';
                     return response.text();
                 })
                 .then(html => {
-                    // Wrap the fetched HTML with a container that includes the close button
-                    formContainer.innerHTML = `
-                        <div class="relative">
-                            <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-900 transition-colors" onclick="closeForm()">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                            ${html}
-                        </div>
-                    `;
+                    const modalBody = modal.querySelector('.modal-body');
+                    modalBody.innerHTML = html;
+                    
+                    // Re-apply the drag functionality to the new modal's header
+                    const header = modal.querySelector('.modal-header');
+                    let isDragging = false;
+                    let initialX, initialY, currentX, currentY;
+                    let modalLeft = leftOffset;
+                    let modalTop = topOffset;
+
+                    header.addEventListener('mousedown', dragStart);
+                    
+                    function dragStart(e) {
+                        initialX = e.clientX;
+                        initialY = e.clientY;
+                        isDragging = true;
+                        document.addEventListener('mousemove', drag);
+                        document.addEventListener('mouseup', dragEnd);
+                    }
+
+                    function drag(e) {
+                        if (isDragging) {
+                            e.preventDefault();
+                            currentX = e.clientX - initialX;
+                            currentY = e.clientY - initialY;
+                            
+                            // Update modal's position
+                            modal.style.left = `${modalLeft + currentX}px`;
+                            modal.style.top = `${modalTop + currentY}px`;
+                        }
+                    }
+
+                    function dragEnd(e) {
+                        isDragging = false;
+                        // Update the new permanent position for the next drag operation
+                        modalLeft = parseInt(modal.style.left);
+                        modalTop = parseInt(modal.style.top);
+                        
+                        document.removeEventListener('mousemove', drag);
+                        document.removeEventListener('mouseup', dragEnd);
+                    }
                 })
                 .catch(error => {
                     console.error('Error loading form:', error);
-                    formContainer.innerHTML = `
+                    const modalBody = modal.querySelector('.modal-body');
+                    modalBody.innerHTML = `
                         <div class="p-4 text-red-500 text-center">
                             <p>Error: Could not load the form. Check the console for details.</p>
                         </div>
                     `;
                 });
+            
+            updateModalCountDisplay();
         }
 
         /**
-         * Opens the POS form.
+         * Opens the POS form in a new modal.
          */
         function openPosForm() {
-            openForm('assets/pos-form.php');
+            openForm('assets/pos-form.php', 'Point of Sale (POS)');
         }
 
         /**
-         * Opens the Bills Folio Register form.
+         * Opens the Bills Folio Register form in a new modal.
          */
         function openBillsFolioRegisterForm() {
-            // Note: The file path is assumed to be 'bills-folio-register.php' in the same directory.
-            // Adjust the path if the file is in a different location.
-            openForm('assets/bills_folio.php');
+            openForm('assets/bills_folio.php', 'Bills Folio Register');
         }
+
         /**
-         * Opens the Sales order  form.
+         * Opens the Sales Order Processing form in a new modal.
          */
         function openSalesOrderForm() {
-            // Note: The file path is assumed to be 'bills-folio-register.php' in the same directory.
-            // Adjust the path if the file is in a different location.
-            openForm('assets/sales_order.php');
+            openForm('assets/sales_order.php', 'Sales Orders Processing');
         }
-
+        
+         /**
+         * Opens the Stocking form in a new modal.
+         */
+        function openStockForm() {
+            openForm('assets/stock.php', 'Stock');
+        }
+        
+        /**
+         * Toggles the visibility of a dropdown menu.
+         * @param {string} menuId - The ID of the menu element.
+         * @param {string} buttonId - The ID of the button element.
+         */
+        function toggleDropdown(menuId, buttonId) {
+            const menu = document.getElementById(menuId);
+            const button = document.getElementById(buttonId);
+            const isVisible = menu.classList.contains('visible');
+            
+            if (isVisible) {
+                closeDropdown(menuId, buttonId);
+            } else {
+                menu.classList.add('visible');
+                menu.classList.remove('invisible', 'opacity-0');
+                button.setAttribute('aria-expanded', 'true');
+            }
+        }
 
         /**
-         * Hides the accounts dropdown menu.
+         * Hides a specific dropdown menu.
+         * @param {string} menuId - The ID of the menu element to hide.
+         * @param {string} buttonId - The ID of the button element to update.
          */
-        function closeDropdown() {
-            const accountsMenu = document.getElementById('accounts-menu');
-            const accountsButton = document.getElementById('accounts-button');
-            accountsMenu.classList.remove('visible');
-            accountsMenu.classList.add('invisible', 'opacity-0');
-            accountsButton.setAttribute('aria-expanded', 'false');
+        function closeDropdown(menuId, buttonId) {
+            const menu = document.getElementById(menuId);
+            const button = document.getElementById(buttonId);
+            menu.classList.remove('visible');
+            menu.classList.add('invisible', 'opacity-0');
+            button.setAttribute('aria-expanded', 'false');
         }
 
-        // --- Dropdown Menu Logic ---
+
+        // --- Dynamic Date Logic & Event Listeners ---
         document.addEventListener('DOMContentLoaded', function() {
-            const accountsButton = document.getElementById('accounts-button');
-            const accountsMenu = document.getElementById('accounts-menu');
-            const accountsDropdown = document.getElementById('accounts-dropdown');
+            // Dropdown logic for both Stores and Accounts
+            const dropdowns = [
+                { id: 'stores-dropdown', buttonId: 'stores-button', menuId: 'stores-menu' },
+                { id: 'accounts-dropdown', buttonId: 'accounts-button', menuId: 'accounts-menu' }
+            ];
 
-            // Function to show/hide the menu
-            const toggleMenu = () => {
-                const isVisible = accountsMenu.classList.contains('visible');
-                if (isVisible) {
-                    // Hide the menu
-                    closeDropdown();
-                } else {
-                    // Show the menu
-                    accountsMenu.classList.add('visible');
-                    accountsMenu.classList.remove('invisible', 'opacity-0');
-                    accountsButton.setAttribute('aria-expanded', 'true');
+            dropdowns.forEach(dropdown => {
+                const button = document.getElementById(dropdown.buttonId);
+                const menu = document.getElementById(dropdown.menuId);
+                const dropdownContainer = document.getElementById(dropdown.id);
+
+                if (button && menu && dropdownContainer) {
+                    // Toggle the menu when the button is clicked
+                    button.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        // Close other open dropdowns before opening this one
+                        dropdowns.forEach(otherDropdown => {
+                            if (otherDropdown.id !== dropdown.id) {
+                                closeDropdown(otherDropdown.menuId, otherDropdown.buttonId);
+                            }
+                        });
+                        toggleDropdown(dropdown.menuId, dropdown.buttonId);
+                    });
+
+                    // Close the dropdown if the user clicks anywhere else
+                    document.addEventListener('click', function(event) {
+                        if (!dropdownContainer.contains(event.target)) {
+                            closeDropdown(dropdown.menuId, dropdown.buttonId);
+                        }
+                    });
                 }
-            };
-
-            // Toggle the menu when the button is clicked
-            accountsButton.addEventListener('click', function(event) {
-                event.stopPropagation(); // Prevents the click from bubbling up to the document
-                toggleMenu();
             });
 
-            // Close the dropdown if the user clicks anywhere else
-            document.addEventListener('click', function(event) {
-                if (!accountsDropdown.contains(event.target) && accountsMenu.classList.contains('visible')) {
-                    closeDropdown();
-                }
-            });
-
-            // --- Dynamic Date Logic ---
+            // Dynamic Date Logic
             const updateDate = () => {
                 const now = new Date();
                 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
