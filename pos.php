@@ -63,23 +63,6 @@ $department = $_SESSION['department'] ?? 'Department';
             background: #ffffff;
         }
 
-        /* Custom styles for the draggable popup */
-        .draggable-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000; /* Ensure it's on top of other content */
-            max-width: 90%;
-            max-height: 90vh;
-            overflow: auto;
-            cursor: move; /* Change cursor to indicate it's draggable */
-        }
-
-        .no-drag {
-            cursor: auto; /* Revert cursor for non-draggable elements inside the popup */
-        }
-        
         /* The key change: fix the header and add padding to the body */
         header {
             position: fixed;
@@ -89,9 +72,31 @@ $department = $_SESSION['department'] ?? 'Department';
             z-index: 50; /* Ensure it's above other content but below popups */
         }
         
+        /* The header now uses a flexible layout to handle three distinct rows. */
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* * FIX: Adjust body padding to dynamically accommodate the header on different screen sizes. 
+         * This prevents the header from taking up too much space on small devices.
+         */
         body {
-            /* Adjust padding to accommodate the new three-line header */
+            /* Base padding for larger screens */
             padding-top: 12rem; 
+        }
+        
+        @media (max-width: 1023px) { /* Adjust padding for medium screens */
+            body {
+                padding-top: 10rem;
+            }
+        }
+
+        @media (max-width: 767px) { /* Adjust padding for small screens */
+            body {
+                padding-top: 8rem;
+            }
         }
 
         /* Style for the button row */
@@ -104,6 +109,8 @@ $department = $_SESSION['department'] ?? 'Department';
             color: #ffffff;
             border-radius: 0.375rem;
             transition: all 0.2s ease-in-out;
+            text-align: center;
+            font-weight: 500;
         }
 
         .icon-button:hover {
@@ -114,126 +121,142 @@ $department = $_SESSION['department'] ?? 'Department';
         .dropdown-menu {
             transition: opacity 0.2s ease-in-out;
         }
-        
+
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="flex flex-col min-h-screen">
         <header class="bg-blue-500 shadow-md">
-            <!-- First Line: DuroPOS Title -->
-            <div class="flex justify-between items-center p-2">
-                 <div class="flex items-center">
-                <img src="https://placehold.co/40x40/5d8cfd/fff?text=Logo" alt="img" class="h-5 w-5 mr-2 rounded-full shadow-md">
-                <span class="font-bold text-md tracking-tight text-white">DuroPOS *GLOBAL MAKE TRADERS LTD*</span>
-                <span id="current-date" class="ml-4 text-white text-xs opacity-75"></span>
-                 </div>
-                <div class="text-sm flex items-center space-x-2">
-                    <span class="text-white">Welcome, <?php echo htmlspecialchars($username); ?>!</span>
-                    <a href="#" class="inline-block text-sm px-4 py-2 leading-none border rounded text-blue-600 border-white bg-blue-100 hover:border-transparent hover:text-blue-500 hover:bg-white transition-colors duration-200 font-extrabold shadow-md transform hover:scale-105" onclick="openPosForm(); return false;">POS</a>
-                  
+            <div class="header-content">
+                <!-- First Line: DuroPOS Title -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-2">
+                    <div class="flex items-center mb-2 sm:mb-0">
+                        <img src="https://placehold.co/40x40/5d8cfd/fff?text=Logo" alt="img" class="h-5 w-5 mr-2 rounded-full shadow-md">
+                        <span class="font-bold text-md tracking-tight text-white whitespace-nowrap">DuroPOS *GLOBAL MAKE TRADERS LTD*</span>
+                        <span id="current-date" class="ml-4 text-white text-xs opacity-75 hidden sm:inline"></span>
+                    </div>
+                    <div class="text-sm flex items-center space-x-2 w-full sm:w-auto justify-between">
+                        <span class="text-white whitespace-nowrap">Welcome, <?php echo htmlspecialchars($username); ?>!</span>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Second Line: Navigation Links -->
-            <div class="flex-grow flex-wrap lg:flex-nowrap lg:flex lg:items-center lg:w-auto p-2">
-                <nav class="text-sm flex flex-wrap lg:flex-nowrap">
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">View</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Admin</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Reports</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Masters</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Stores</a>
-
-                    <!-- Accounts Dropdown Menu -->
-                    <div class="relative inline-block text-left" id="accounts-dropdown">
-                        <button id="accounts-button" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium focus:outline-none" aria-haspopup="true" aria-expanded="true">
-                            Accounts
-                        </button>
-                        <div id="accounts-menu" class="dropdown-menu origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible" role="menu" aria-orientation="vertical" aria-labelledby="accounts-button">
-                            <div class="py-1" role="none">
-                                <a href="assets/pos-form.php" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100"onclick="openPosForm(); return false;">POS</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Bills Folio Register</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Accounts Payable</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Sales Orders Processing</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Invoice Payments (Receivables)</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Debit</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Cash Register</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Payment Entries</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Banking Entries</a>
-                                <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Customer Accounts Deposit</a>
+            
+                <!-- Second Line: Navigation Links -->
+                <div class="flex-grow flex-wrap lg:flex-nowrap lg:flex lg:items-center lg:w-auto p-2 border-t border-blue-400">
+                    <nav class="text-sm flex flex-wrap lg:flex-nowrap">
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">View</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Admin</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Reports</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Masters</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Stores</a>
+            
+                        <!-- Accounts Dropdown Menu -->
+                        <div class="relative inline-block text-left" id="accounts-dropdown">
+                            <button id="accounts-button" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium focus:outline-none" aria-haspopup="true" aria-expanded="true">
+                                Accounts
+                            </button>
+                            <div id="accounts-menu" class="dropdown-menu origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none opacity-0 invisible" role="menu" aria-orientation="vertical" aria-labelledby="accounts-button">
+                                <div class="py-1" role="none">
+                                    <!-- This link now calls the openPosForm() function and then closes the dropdown -->
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" onclick="openPosForm(); closeDropdown(); return false;">POS</a>
+                                    <!-- This link now calls the new openBillsFolioRegisterForm() function -->
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="openBillsFolioRegisterForm(); closeDropdown(); return false;">Bills Folio Register</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Accounts Payable</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="openSalesOrderForm(); closeDropdown(); return false;">Sales Orders Processing</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Invoice Payments (Receivables)</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Debit</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Cash Register</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Payment Entries</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Banking Entries</a>
+                                    <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" onclick="closeDropdown(); return false;">Customer Accounts Deposit</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <a href="pos-form.php" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">HRM</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Payroll</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Tools</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Windows</a>
-                    <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Help</a>
-                    
-                </nav>
-            </div>
-
-            <!-- Third Line: Action Buttons -->
-            <div class="flex justify-start p-2 border-t border-blue-500">
-                <div class="flex items-center space-x-2">
-                    <!-- Save Button -->
-                    <button class="icon-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                        <span class="text-xs">Save</span>
-                    </button>
-                    <!-- Copy Button -->
-                    <button class="icon-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 4v6m-4-3h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2m-6-6h12a2 2 0 002-2v-4a2 2 0 00-2-2H8a2 2 0 00-2 2v4a2 2 0 002 2z" />
-                        </svg>
-                        <span class="text-xs">Copy</span>
-                    </button>
-                    <!-- Print Button -->
-                    <button class="icon-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2v-4m-2 4h2m0 0v1a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1M17 17h-4m-4-4h4m0 0v-4a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2z" />
-                        </svg>
-                        <span class="text-xs">Print</span>
-                    </button>
-                    <!-- Find (Binoculars) Button -->
-                    <button class="icon-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 12a2 2 0 100-4 2 2 0 000 4z" />
-                        </svg>
-                        <span class="text-xs">Find Record</span>
-                    </button>
-                    <!-- Drawer Reconciliation Button -->
-                   <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Drawer Reconcilliation</a>                   
-                   <a href="#" class="nav-link block mt-4 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Admin Collection</a>
+                        
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">HRM</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Payroll</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Tools</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Windows</a>
+                        <a href="#" class="nav-link block mt-2 lg:inline-block lg:mt-0 text-white hover:text-white mr-4 p-2 rounded-md font-medium">Help</a>
+                    </nav>
                 </div>
-                  <div class="flex items-center space-x-2">
-                   <a href="logout.php" class="icon-button">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H3a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                        </svg>
-                        <span class="text-xs">Exit</span>
-                    </a>
+            
+                <!-- Third Line: Action Buttons -->
+                <div class="flex flex-wrap items-center justify-between p-2 border-t border-blue-400">
+                    <div class="flex flex-wrap items-center space-x-2">
+                        <!-- Save Button -->
+                        <button class="icon-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                            </svg>
+                            <span class="text-xs">Save</span>
+                        </button>
+                        <!-- Copy Button -->
+                        <button class="icon-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 4v6m-4-3h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2m-6-6h12a2 2 0 002-2v-4a2 2 0 00-2-2H8a2 2 0 00-2 2v4a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-xs">Copy</span>
+                        </button>
+                        <!-- Print Button -->
+                        <button class="icon-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2v-4m-2 4h2m0 0v1a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1M17 17h-4m-4-4h4m0 0v-4a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2z" />
+                            </svg>
+                            <span class="text-xs">Print</span>
+                        </button>
+                        <!-- Find (Binoculars) Button -->
+                        <button class="icon-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 12a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                            <span class="text-xs">Find Record</span>
+                        </button>
+                        <!-- Drawer Reconciliation Button - Now consistent with other icons -->
+                        <a href="#" class="icon-button">
+                            <span class="text-xs">Drawer Reconciliation</span>
+                        </a>
+                        <!-- Admin Collection Button - Now consistent with other icons -->
+                        <a href="#" class="icon-button">
+                            <span class="text-xs">Admin Collection</span>
+                        </a>
+                        <a href="#" id="pos-button" class="icon-button" onclick="openPosForm(); return false;">POS</a>
+                    </div>
+                    <!-- This div is pushed to the far right -->
+                    <div class="flex items-center space-x-2 mt-2 sm:mt-0">
+                        <a href="logout.php" class="icon-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H3a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                            </svg>
+                            <span class="text-xs">Exit</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <main class="flex-grow p-6">
+        <!-- Main content area for general dashboard messages -->
+        <main class="flex-grow p-6 relative" id="main-content">
             <div class="container mx-auto">
-                <!-- Main content goes here -->
+                <div class="text-center text-gray-500" id="initial-message">
+                    <h2 class="text-2xl font-semibold mb-4">Welcome to DuroPOS</h2>
+                    <p>Select an option from the navigation bar above to get started.</p>
+                </div>
+                <!-- The POS form will be injected here -->
+                <div id="form-container" class="mt-8 p-6 bg-white rounded-lg shadow-md hidden overflow-y-auto max-h-screen">
+                    <!-- Content will be loaded here by JavaScript -->
+                </div>
             </div>
         </main>
-
+        
         <!-- Updated Footer -->
         <footer class="bg-gray-800 text-white p-4 text-sm">
-            <div class="container mx-auto flex items-center justify-between">
+            <div class="container mx-auto flex flex-col sm:flex-row items-center justify-between">
                 <!-- Copyright in the center -->
-               <span class="text-center text-xs">
+                <span class="text-center text-xs order-2 sm:order-1 mt-2 sm:mt-0">
                     &copy; <span id="current-year"></span> Global Make Traders LTD. All rights reserved.
                 </span>
                 <!-- User/Department on the right -->
-                <span class="text-xs opacity-75">User : <?php echo htmlspecialchars($username); ?></span>
+                <span class="text-xs opacity-75 order-1 sm:order-2">User : <?php echo htmlspecialchars($username); ?></span>
             </div>
         </footer>
     </div>
@@ -242,40 +265,105 @@ $department = $_SESSION['department'] ?? 'Department';
         // --- Core Application Logic ---
 
         /**
-         * Loads the content of 'pos-form.php' into the main content area of the page.
+         * Generic function to close any form and restore the dashboard to its initial state.
          */
-        function loadPosFormIntoMain() {
-            const mainContent = document.getElementById('main-content');
+        function closeForm() {
+            const initialMessage = document.getElementById('initial-message');
+            const formContainer = document.getElementById('form-container');
+            const posButton = document.getElementById('pos-button');
+
+            formContainer.classList.add('hidden');
+            initialMessage.style.display = 'block';
+            posButton.style.display = 'inline-block';
+        }
+
+        /**
+         * Fetches a form from a specified URL and injects it into the main content area.
+         * @param {string} formUrl - The URL of the form to fetch.
+         */
+        function openForm(formUrl) {
+            const initialMessage = document.getElementById('initial-message');
+            const formContainer = document.getElementById('form-container');
+            const posButton = document.getElementById('pos-button');
+
+            // Hide the main POS button and the initial message
+            posButton.style.display = 'none';
+            initialMessage.style.display = 'none';
+
+            // Show the container for the form and make it full width/height on small screens
+            formContainer.classList.remove('hidden');
+            formContainer.classList.add('w-full', 'h-auto', 'max-h-screen', 'overflow-y-auto');
             
-            // Display a loading message while fetching the form
-            mainContent.innerHTML = `
-                <div class="container mx-auto flex items-center justify-center h-full">
-                    <p class="text-center text-gray-500 animate-pulse">Loading POS form...</p>
-                </div>
-            `;
-            
-            // Fetch the content of the form and inject it into the main content area
-            fetch('assets/pos-form.php')
+            // Display a loading message inside the container
+            formContainer.innerHTML = `<div class="p-4 text-center text-gray-500 animate-pulse">Loading form...</div>`;
+
+            // Fetch the content of the form and inject it into the form container
+            fetch(formUrl)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to fetch POS form');
+                        throw new Error(`Failed to fetch form. Status: ${response.status}`);
                     }
                     return response.text();
                 })
                 .then(html => {
-                    // Inject the HTML directly into the main content area
-                    mainContent.innerHTML = html;
+                    // Wrap the fetched HTML with a container that includes the close button
+                    formContainer.innerHTML = `
+                        <div class="relative">
+                            <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-900 transition-colors" onclick="closeForm()">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            ${html}
+                        </div>
+                    `;
                 })
                 .catch(error => {
-                    console.error('Error loading POS form:', error);
-                    mainContent.innerHTML = `
-                        <div class="container mx-auto flex items-center justify-center h-full">
-                            <p class="text-red-500 text-center">Error: Could not load the form. Check the console for details.</p>
+                    console.error('Error loading form:', error);
+                    formContainer.innerHTML = `
+                        <div class="p-4 text-red-500 text-center">
+                            <p>Error: Could not load the form. Check the console for details.</p>
                         </div>
                     `;
                 });
         }
-        
+
+        /**
+         * Opens the POS form.
+         */
+        function openPosForm() {
+            openForm('assets/pos-form.php');
+        }
+
+        /**
+         * Opens the Bills Folio Register form.
+         */
+        function openBillsFolioRegisterForm() {
+            // Note: The file path is assumed to be 'bills-folio-register.php' in the same directory.
+            // Adjust the path if the file is in a different location.
+            openForm('assets/bills_folio.php');
+        }
+        /**
+         * Opens the Sales order  form.
+         */
+        function openSalesOrderForm() {
+            // Note: The file path is assumed to be 'bills-folio-register.php' in the same directory.
+            // Adjust the path if the file is in a different location.
+            openForm('assets/sales_order.php');
+        }
+
+
+        /**
+         * Hides the accounts dropdown menu.
+         */
+        function closeDropdown() {
+            const accountsMenu = document.getElementById('accounts-menu');
+            const accountsButton = document.getElementById('accounts-button');
+            accountsMenu.classList.remove('visible');
+            accountsMenu.classList.add('invisible', 'opacity-0');
+            accountsButton.setAttribute('aria-expanded', 'false');
+        }
+
         // --- Dropdown Menu Logic ---
         document.addEventListener('DOMContentLoaded', function() {
             const accountsButton = document.getElementById('accounts-button');
@@ -287,9 +375,7 @@ $department = $_SESSION['department'] ?? 'Department';
                 const isVisible = accountsMenu.classList.contains('visible');
                 if (isVisible) {
                     // Hide the menu
-                    accountsMenu.classList.remove('visible');
-                    accountsMenu.classList.add('invisible', 'opacity-0');
-                    accountsButton.setAttribute('aria-expanded', 'false');
+                    closeDropdown();
                 } else {
                     // Show the menu
                     accountsMenu.classList.add('visible');
@@ -307,7 +393,7 @@ $department = $_SESSION['department'] ?? 'Department';
             // Close the dropdown if the user clicks anywhere else
             document.addEventListener('click', function(event) {
                 if (!accountsDropdown.contains(event.target) && accountsMenu.classList.contains('visible')) {
-                    toggleMenu();
+                    closeDropdown();
                 }
             });
 
@@ -332,5 +418,5 @@ $department = $_SESSION['department'] ?? 'Department';
             setInterval(updateDate, 60000); // Update the date every minute
         });
     </script>
-    </body>
+</body>
 </html>
