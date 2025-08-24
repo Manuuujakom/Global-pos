@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Direct Purchases/Stocking</title>
+
     <!-- Use Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use Inter font from Google Fonts -->
@@ -24,7 +19,7 @@
             100% { transform: translateY(0); opacity: 1; }
         }
     </style>
-</head>
+
 <body class="bg-gray-100 p-4 min-h-screen">
 
     <!-- Main Application Form Container -->
@@ -357,4 +352,4 @@
     </script>
 
 </body>
-</html>
+

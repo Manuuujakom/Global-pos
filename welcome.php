@@ -99,7 +99,7 @@
             </div>
             <div class="flex items-center space-x-4">
                 <span class="text-gray-700">Hello, Admin User</span>
-                <a href="#" class="btn btn-secondary">Logout</a>
+                <a href="logout.php" class="btn btn-secondary">Logout</a>
             </div>
         </header>
 
